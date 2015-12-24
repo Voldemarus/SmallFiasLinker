@@ -1,4 +1,36 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model name="untitled.xcdatamodel" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1" systemVersion="11A491" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
-    <elements/>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9525" systemVersion="15C50" minimumToolsVersion="Automatic">
+    <entity name="Fias" representedClassName="Fias" syncable="YES">
+        <attribute name="fias" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="nasPunkt" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="refAmount" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="refID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <relationship name="okrug" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Okrug" inverseName="fiasRecords" inverseEntity="Okrug" syncable="YES"/>
+        <relationship name="poselenie" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Poselenie" inverseName="fiasRecords" inverseEntity="Poselenie" syncable="YES"/>
+        <relationship name="region" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Region" inverseName="fiasRecords" inverseEntity="Region" syncable="YES"/>
+    </entity>
+    <entity name="Okrug" representedClassName="Okrug" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="fiasRecords" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Fias" inverseName="okrug" inverseEntity="Fias" syncable="YES"/>
+        <relationship name="poselenies" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Poselenie" inverseName="okrug" inverseEntity="Poselenie" syncable="YES"/>
+        <relationship name="regions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Region" inverseName="okrug" inverseEntity="Region" syncable="YES"/>
+    </entity>
+    <entity name="Poselenie" representedClassName="Poselenie" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="fiasRecords" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Fias" inverseName="poselenie" inverseEntity="Fias" syncable="YES"/>
+        <relationship name="okrug" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Okrug" inverseName="poselenies" inverseEntity="Okrug" syncable="YES"/>
+        <relationship name="region" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Region" inverseName="poselenies" inverseEntity="Region" syncable="YES"/>
+    </entity>
+    <entity name="Region" representedClassName="Region" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="fiasRecords" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Fias" inverseName="region" inverseEntity="Fias" syncable="YES"/>
+        <relationship name="okrug" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Okrug" inverseName="regions" inverseEntity="Okrug" syncable="YES"/>
+        <relationship name="poselenies" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Poselenie" inverseName="region" inverseEntity="Poselenie" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Fias" positionX="-65" positionY="-45" width="128" height="148"/>
+        <element name="Okrug" positionX="-263" positionY="-63" width="128" height="103"/>
+        <element name="Region" positionX="-477" positionY="84" width="128" height="103"/>
+        <element name="Poselenie" positionX="-452" positionY="-153" width="128" height="103"/>
+    </elements>
 </model>

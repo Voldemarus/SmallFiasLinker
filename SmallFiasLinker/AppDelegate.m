@@ -7,8 +7,14 @@
 //
 
 #import "AppDelegate.h"
+#import "DAO.h"
 
-@interface AppDelegate ()
+@interface AppDelegate () {
+	NSArray *allLinedStrings;
+	NSInteger lineIndex;
+	
+	NSMutableArray *fiasArray;
+}
 
 @property (weak) IBOutlet NSWindow *window;
 - (IBAction)saveAction:(id)sender;
@@ -18,7 +24,20 @@
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-	// Insert code here to initialize your application
+	// Init DAO and database connection
+	[DAO sharedInstance].managedObjectContext = self.managedObjectContext;
+	
+	fiasArray = [[NSMutableArray alloc] initWithArray:[[DAO sharedInstance] fiasListWithPredicate:nil]];
+	self.fiasRecordCount.stringValue = [NSString stringWithFormat:@"Всего записей: %lu",fiasArray.count];
+
+	for (NSTableColumn *tableColumn in self.fiasTableView.tableColumns ) {
+		
+		NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:tableColumn.identifier ascending:YES selector:@selector(compare:)];
+		[tableColumn setSortDescriptorPrototype:sortDescriptor];
+	}
+	
+	
+	[self.fiasTableView reloadData];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -75,7 +94,7 @@
     if (!shouldFail && !error) {
         NSPersistentStoreCoordinator *coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[self managedObjectModel]];
         NSURL *url = [applicationDocumentsDirectory URLByAppendingPathComponent:@"OSXCoreDataObjC.storedata"];
-        if (![coordinator addPersistentStoreWithType:NSXMLStoreType configuration:nil URL:url options:nil error:&error]) {
+        if (![coordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:url options:nil error:&error]) {
             coordinator = nil;
         }
         _persistentStoreCoordinator = coordinator;
@@ -173,6 +192,136 @@
     }
 
     return NSTerminateNow;
+}
+
+
+#pragma mark -
+
+
+- (IBAction)fiasUploadPressed:(id)sender
+{
+	// Запрашиваем файл, внешний по отношению к проекту, в котором хранятся данные ФИАС в CSVформате
+	NSOpenPanel *openPanel = [NSOpenPanel openPanel];
+	openPanel.canChooseDirectories = NO;
+	openPanel.canChooseFiles = YES;
+	
+	[openPanel beginSheetModalForWindow:self.window completionHandler:^(NSInteger result) {
+		if (result == NSFileHandlingPanelOKButton) {
+			if (openPanel.URL) {
+				// файл выбран!
+				// 1) Удаляем все данные из ФИАС
+				NSFetchRequest *req = [[NSFetchRequest alloc] initWithEntityName:@"Fias"];
+				NSError *error = nil;
+				NSArray *res = [self.managedObjectContext executeFetchRequest:req error:&error];
+				if (!error) {
+					for (Fias *f in res) {
+						[self.managedObjectContext deleteObject:f];
+					}
+				} else {
+					NSAlert *alert = [NSAlert alertWithError:error];
+				}
+				// 2. Начинаем обработку входного массива из файла в csv формате
+				
+				
+				NSString* fileContents =
+				[NSString stringWithContentsOfURL:openPanel.URL encoding:NSUTF8StringEncoding error:&error];
+				if (error) {
+					NSLog(@"Ошибка при чтении файла - %@",[error localizedDescription]);
+					exit(1);
+				}
+				
+				// first, separate by new line
+				@autoreleasepool {
+					allLinedStrings =
+					[fileContents componentsSeparatedByCharactersInSet:
+					 [NSCharacterSet characterSetWithCharactersInString:@",\n"]];
+					lineIndex = 0;
+					NSInteger totalRecords = 0;
+					for (NSString *line in allLinedStrings) {
+						
+						NSArray *decomposed = [line componentsSeparatedByString:@";"];
+						if (decomposed.count == 7) {
+							NSInteger check = [decomposed[0] integerValue];
+							if (check > 0) {
+								Fias *newFias = [Fias createFiasRecordWithData:decomposed errorifNotUnique:YES inMoc:self.managedObjectContext];
+								if (newFias) {
+									lineIndex++;
+									if (lineIndex >= 500) {
+										[self.managedObjectContext save:&error];
+										totalRecords += lineIndex;
+										lineIndex = 0;
+										NSLog(@"Загружено - %lu записей", totalRecords);
+								
+									}
+								}
+							}
+						}
+					}
+					allLinedStrings = nil;
+					[self.managedObjectContext save:&error];
+				}
+				[fiasArray removeAllObjects];
+				[fiasArray addObjectsFromArray:[[DAO sharedInstance] fiasListWithPredicate:nil]];
+				self.filterIsOn.state = NSOffState;
+				self.fiasRecordCount.stringValue = [NSString stringWithFormat:@"Всего записей: %lu",fiasArray.count];
+				[self.fiasTableView reloadData];
+		}
+	}
+	 }];
+
+}
+
+- (IBAction)filerSetupPressed:(id)sender
+{
+	
+}
+
+- (IBAction)filterIsOnChanged:(id)sender
+{
+	
+}
+
+#pragma mark - Table delegate -
+
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
+{
+	if (tableView == self.fiasTableView) {
+		return fiasArray.count;
+	}
+	return 0;
+}
+
+- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
+{
+	// The return value is typed as (id) because it will return a string in most cases.
+	id returnValue=nil;
+ 
+	// The column identifier string is the easiest way to identify a table column.
+	NSString *columnIdentifer = [aTableColumn identifier];
+ 
+	Fias *rec = fiasArray[rowIndex];
+	if ([columnIdentifer isEqualToString:@"refID"]) {
+		returnValue = [NSString stringWithFormat:@"%@", rec.refID];
+	} else if ([columnIdentifer isEqualToString:@"fias"]) {
+		returnValue = rec.fias;
+	} else if ([columnIdentifer isEqualToString:@"okrug.name"]) {
+		returnValue = rec.okrug.name;
+	} else if ([columnIdentifer isEqualToString:@"region.name"]) {
+		returnValue = rec.region.name;
+	} else if ([columnIdentifer isEqualToString:@"poselenie.name"]) {
+		returnValue = rec.poselenie.name;
+	} else if ([columnIdentifer isEqualToString:@"nasPunkt"]) {
+		returnValue = rec.nasPunkt;
+	} else if ([columnIdentifer isEqualToString:@"refAmount"]) {
+		returnValue = [NSString stringWithFormat:@"%@", rec.refAmount];
+	}
+	return returnValue;
+}
+
+- (void)tableView:(NSTableView *)tableView sortDescriptorsDidChange:(NSArray *)oldDescriptors
+{
+	[fiasArray sortUsingDescriptors: [tableView sortDescriptors]];
+	[tableView reloadData];
 }
 
 @end

@@ -12,6 +12,15 @@
 		1B8E9A6D1C2BE2420001076E /* SmallFiasLinker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1B8E9A6B1C2BE2420001076E /* SmallFiasLinker.xcdatamodeld */; };
 		1B8E9A6F1C2BE2420001076E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1B8E9A6E1C2BE2420001076E /* Assets.xcassets */; };
 		1B8E9A721C2BE2420001076E /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1B8E9A701C2BE2420001076E /* MainMenu.xib */; };
+		1B8E9A8A1C2BE5590001076E /* Fias+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B8E9A7B1C2BE5590001076E /* Fias+CoreDataProperties.m */; };
+		1B8E9A8B1C2BE5590001076E /* Fias.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B8E9A7D1C2BE5590001076E /* Fias.m */; };
+		1B8E9A8C1C2BE5590001076E /* Okrug+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B8E9A7F1C2BE5590001076E /* Okrug+CoreDataProperties.m */; };
+		1B8E9A8D1C2BE5590001076E /* Okrug.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B8E9A811C2BE5590001076E /* Okrug.m */; };
+		1B8E9A8E1C2BE5590001076E /* Poselenie+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B8E9A831C2BE5590001076E /* Poselenie+CoreDataProperties.m */; };
+		1B8E9A8F1C2BE5590001076E /* Poselenie.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B8E9A851C2BE5590001076E /* Poselenie.m */; };
+		1B8E9A901C2BE5590001076E /* Region+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B8E9A871C2BE5590001076E /* Region+CoreDataProperties.m */; };
+		1B8E9A911C2BE5590001076E /* Region.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B8E9A891C2BE5590001076E /* Region.m */; };
+		1B8E9A941C2BE6E80001076E /* DAO.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B8E9A931C2BE6E80001076E /* DAO.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +32,24 @@
 		1B8E9A6E1C2BE2420001076E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1B8E9A711C2BE2420001076E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		1B8E9A731C2BE2420001076E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1B8E9A7A1C2BE5590001076E /* Fias+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Fias+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1B8E9A7B1C2BE5590001076E /* Fias+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Fias+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1B8E9A7C1C2BE5590001076E /* Fias.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Fias.h; sourceTree = "<group>"; };
+		1B8E9A7D1C2BE5590001076E /* Fias.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Fias.m; sourceTree = "<group>"; };
+		1B8E9A7E1C2BE5590001076E /* Okrug+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Okrug+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1B8E9A7F1C2BE5590001076E /* Okrug+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Okrug+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1B8E9A801C2BE5590001076E /* Okrug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Okrug.h; sourceTree = "<group>"; };
+		1B8E9A811C2BE5590001076E /* Okrug.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Okrug.m; sourceTree = "<group>"; };
+		1B8E9A821C2BE5590001076E /* Poselenie+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Poselenie+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1B8E9A831C2BE5590001076E /* Poselenie+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Poselenie+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1B8E9A841C2BE5590001076E /* Poselenie.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Poselenie.h; sourceTree = "<group>"; };
+		1B8E9A851C2BE5590001076E /* Poselenie.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Poselenie.m; sourceTree = "<group>"; };
+		1B8E9A861C2BE5590001076E /* Region+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Region+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1B8E9A871C2BE5590001076E /* Region+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "Region+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1B8E9A881C2BE5590001076E /* Region.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Region.h; sourceTree = "<group>"; };
+		1B8E9A891C2BE5590001076E /* Region.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Region.m; sourceTree = "<group>"; };
+		1B8E9A921C2BE6E80001076E /* DAO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DAO.h; sourceTree = "<group>"; };
+		1B8E9A931C2BE6E80001076E /* DAO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DAO.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,7 +87,7 @@
 				1B8E9A6E1C2BE2420001076E /* Assets.xcassets */,
 				1B8E9A701C2BE2420001076E /* MainMenu.xib */,
 				1B8E9A731C2BE2420001076E /* Info.plist */,
-				1B8E9A6B1C2BE2420001076E /* SmallFiasLinker.xcdatamodeld */,
+				1B8E9A791C2BE53A0001076E /* Data Model */,
 				1B8E9A681C2BE2420001076E /* Supporting Files */,
 			);
 			path = SmallFiasLinker;
@@ -72,6 +99,32 @@
 				1B8E9A691C2BE2420001076E /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		1B8E9A791C2BE53A0001076E /* Data Model */ = {
+			isa = PBXGroup;
+			children = (
+				1B8E9A6B1C2BE2420001076E /* SmallFiasLinker.xcdatamodeld */,
+				1B8E9A7A1C2BE5590001076E /* Fias+CoreDataProperties.h */,
+				1B8E9A7B1C2BE5590001076E /* Fias+CoreDataProperties.m */,
+				1B8E9A7C1C2BE5590001076E /* Fias.h */,
+				1B8E9A7D1C2BE5590001076E /* Fias.m */,
+				1B8E9A7E1C2BE5590001076E /* Okrug+CoreDataProperties.h */,
+				1B8E9A7F1C2BE5590001076E /* Okrug+CoreDataProperties.m */,
+				1B8E9A801C2BE5590001076E /* Okrug.h */,
+				1B8E9A811C2BE5590001076E /* Okrug.m */,
+				1B8E9A821C2BE5590001076E /* Poselenie+CoreDataProperties.h */,
+				1B8E9A831C2BE5590001076E /* Poselenie+CoreDataProperties.m */,
+				1B8E9A841C2BE5590001076E /* Poselenie.h */,
+				1B8E9A851C2BE5590001076E /* Poselenie.m */,
+				1B8E9A861C2BE5590001076E /* Region+CoreDataProperties.h */,
+				1B8E9A871C2BE5590001076E /* Region+CoreDataProperties.m */,
+				1B8E9A881C2BE5590001076E /* Region.h */,
+				1B8E9A891C2BE5590001076E /* Region.m */,
+				1B8E9A921C2BE6E80001076E /* DAO.h */,
+				1B8E9A931C2BE6E80001076E /* DAO.m */,
+			);
+			name = "Data Model";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -143,9 +196,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1B8E9A941C2BE6E80001076E /* DAO.m in Sources */,
+				1B8E9A8F1C2BE5590001076E /* Poselenie.m in Sources */,
+				1B8E9A8E1C2BE5590001076E /* Poselenie+CoreDataProperties.m in Sources */,
+				1B8E9A8B1C2BE5590001076E /* Fias.m in Sources */,
+				1B8E9A911C2BE5590001076E /* Region.m in Sources */,
 				1B8E9A6A1C2BE2420001076E /* main.m in Sources */,
+				1B8E9A8C1C2BE5590001076E /* Okrug+CoreDataProperties.m in Sources */,
 				1B8E9A6D1C2BE2420001076E /* SmallFiasLinker.xcdatamodeld in Sources */,
+				1B8E9A8A1C2BE5590001076E /* Fias+CoreDataProperties.m in Sources */,
 				1B8E9A671C2BE2420001076E /* AppDelegate.m in Sources */,
+				1B8E9A8D1C2BE5590001076E /* Okrug.m in Sources */,
+				1B8E9A901C2BE5590001076E /* Region+CoreDataProperties.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
