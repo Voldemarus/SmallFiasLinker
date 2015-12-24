@@ -219,6 +219,7 @@
 					}
 				} else {
 					NSAlert *alert = [NSAlert alertWithError:error];
+					[alert runModal];
 				}
 				// 2. Начинаем обработку входного массива из файла в csv формате
 				
