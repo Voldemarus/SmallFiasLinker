@@ -13,6 +13,7 @@
 #import "Region.h"
 #import "Poselenie.h"
 #import "Fias.h"
+#import "Taxophon.h"
 
 extern NSString * const VVVCoreDataRequestError;
 extern NSString * const VVVParserWrongFieldsNum;
@@ -39,6 +40,10 @@ extern NSString * const VVVParserDuplicatedFiasID;
 - (NSArray *) okrugList;
 - (NSArray *)regionListForOkrug:(Okrug *)aOkrug;
 - (NSArray *)poselenieListForOkrug:(Okrug *)aOkrug andRegion:(Region *)aRegion;
-- (NSArray *)fiasListWithPredicate:(nullable NSPredicate *)predicate;
+- (NSArray *)fiasListWithPredicate:(NSPredicate *)predicate;
+
+- (CGFloat) badPercent;
+- (NSArray *)taxophoneListWithPredicate:(NSPredicate *)predicate;
+
 
 @end

@@ -1,5 +1,5 @@
 //
-//  Fias+CoreDataProperties.m
+//  Taxophon+CoreDataProperties.m
 //  SmallFiasLinker
 //
 //  Created by Водолазкий В.В. on 24.12.15.
@@ -9,17 +9,16 @@
 //  to delete and recreate this implementation file for your updated model.
 //
 
-#import "Fias+CoreDataProperties.h"
+#import "Taxophon+CoreDataProperties.h"
 
-@implementation Fias (CoreDataProperties)
+@implementation Taxophon (CoreDataProperties)
 
-@dynamic refID;
+@dynamic addressLine;
+@dynamic subjLine;
+@dynamic phoneNumber;
+@dynamic latitude;
+@dynamic longitude;
+@dynamic formattedAddress;
 @dynamic fias;
-@dynamic refAmount;
-@dynamic nasPunkt;
-@dynamic okrug;
-@dynamic region;
-@dynamic poselenie;
-@dynamic taxophones;
 
 @end

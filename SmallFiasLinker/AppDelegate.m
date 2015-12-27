@@ -9,14 +9,19 @@
 #import "AppDelegate.h"
 #import "DAO.h"
 
+
+NSString * const VVVInternalAddresLoad		=	@"Pip1";
+
 @interface AppDelegate () {
 	NSArray *allLinedStrings;
 	NSInteger lineIndex;
 	
 	NSMutableArray *fiasArray;
+	NSMutableArray *taxoArray;
 }
 
 @property (weak) IBOutlet NSWindow *window;
+
 - (IBAction)saveAction:(id)sender;
 
 @end
@@ -31,13 +36,29 @@
 	self.fiasRecordCount.stringValue = [NSString stringWithFormat:@"Всего записей: %lu",fiasArray.count];
 
 	for (NSTableColumn *tableColumn in self.fiasTableView.tableColumns ) {
-		
 		NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:tableColumn.identifier ascending:YES selector:@selector(compare:)];
 		[tableColumn setSortDescriptorPrototype:sortDescriptor];
 	}
-	
-	
 	[self.fiasTableView reloadData];
+	
+	taxoArray = [[NSMutableArray alloc] initWithArray:[[DAO sharedInstance] taxophoneListWithPredicate:nil]];
+	
+	self.taxophoneRecordsAmount.stringValue = [NSString stringWithFormat:@"Всего записей: %lu",taxoArray.count];
+
+	float badPercent = [DAO sharedInstance].badPercent;
+	self.unlinkedCount.stringValue = [NSString stringWithFormat:@"Не связано: %.2f%%",badPercent];
+
+	for (NSTableColumn *tableColumn in self.taxoTableView.tableColumns ) {
+		NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:tableColumn.identifier ascending:YES selector:@selector(compare:)];
+		[tableColumn setSortDescriptorPrototype:sortDescriptor];
+	}
+	[self.taxoTableView reloadData];
+	
+	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+	[nc addObserver:self selector:@selector(processAddressLoading:)
+			   name:VVVInternalAddresLoad object:nil];
+	
+	
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -288,6 +309,8 @@
 {
 	if (tableView == self.fiasTableView) {
 		return fiasArray.count;
+	} else if (tableView == self.taxoTableView) {
+		return taxoArray.count;
 	}
 	return 0;
 }
@@ -300,29 +323,153 @@
 	// The column identifier string is the easiest way to identify a table column.
 	NSString *columnIdentifer = [aTableColumn identifier];
  
-	Fias *rec = fiasArray[rowIndex];
-	if ([columnIdentifer isEqualToString:@"refID"]) {
-		returnValue = [NSString stringWithFormat:@"%@", rec.refID];
-	} else if ([columnIdentifer isEqualToString:@"fias"]) {
-		returnValue = rec.fias;
-	} else if ([columnIdentifer isEqualToString:@"okrug.name"]) {
-		returnValue = rec.okrug.name;
-	} else if ([columnIdentifer isEqualToString:@"region.name"]) {
-		returnValue = rec.region.name;
-	} else if ([columnIdentifer isEqualToString:@"poselenie.name"]) {
-		returnValue = rec.poselenie.name;
-	} else if ([columnIdentifer isEqualToString:@"nasPunkt"]) {
-		returnValue = rec.nasPunkt;
-	} else if ([columnIdentifer isEqualToString:@"refAmount"]) {
-		returnValue = [NSString stringWithFormat:@"%@", rec.refAmount];
+	if (aTableView == self.fiasTableView) {
+		Fias *rec = fiasArray[rowIndex];
+		if ([columnIdentifer isEqualToString:@"refID"]) {
+			returnValue = [NSString stringWithFormat:@"%@", rec.refID];
+		} else if ([columnIdentifer isEqualToString:@"fias"]) {
+			returnValue = rec.fias;
+		} else if ([columnIdentifer isEqualToString:@"okrug.name"]) {
+			returnValue = rec.okrug.name;
+		} else if ([columnIdentifer isEqualToString:@"region.name"]) {
+			returnValue = rec.region.name;
+		} else if ([columnIdentifer isEqualToString:@"poselenie.name"]) {
+			returnValue = rec.poselenie.name;
+		} else if ([columnIdentifer isEqualToString:@"nasPunkt"]) {
+			returnValue = rec.nasPunkt;
+		} else if ([columnIdentifer isEqualToString:@"refAmount"]) {
+			returnValue = [NSString stringWithFormat:@"%@", rec.refAmount];
+		}
+	} else if (aTableView == self.taxoTableView) {
+		Taxophon *tax = taxoArray[rowIndex];
+		if ([columnIdentifer isEqualToString:@"fias.fias"]) {
+			returnValue = tax.fias.fias;
+		} else if ([columnIdentifer isEqualToString:@"formattedAddess"]) {
+			returnValue = tax.formattedAddress;
+		} else if ([columnIdentifer isEqualToString:@"latitude"]) {
+			double lat = [tax.latitude doubleValue];
+			if (lat < 0.001) {
+				returnValue = @"Нет данных";
+			} else
+				returnValue = [NSString stringWithFormat:@"%.3f",lat];
+		} else if ([columnIdentifer isEqualToString:@"longitude"]) {
+			double lon = [tax.latitude doubleValue];
+			if (lon < 0.001) {
+				returnValue = @"Нет данных";
+			} else
+				returnValue = [NSString stringWithFormat:@"%.3f",lon];
+		} else if ([columnIdentifer isEqualToString:@"phoneNumber"]) {
+			returnValue = tax.phoneNumber;
+		} else if ([columnIdentifer isEqualToString:@"subjLine"]) {
+			returnValue = tax.subjLine;
+		} else if ([columnIdentifer isEqualToString:@"addressLine"]) {
+			returnValue = tax.addressLine;
+		}
+		
+		if (!returnValue) {
+			returnValue = @"Нет данных";
+		}
 	}
+	
 	return returnValue;
 }
 
 - (void)tableView:(NSTableView *)tableView sortDescriptorsDidChange:(NSArray *)oldDescriptors
 {
-	[fiasArray sortUsingDescriptors: [tableView sortDescriptors]];
+	if (tableView == self.fiasTableView) {
+		[fiasArray sortUsingDescriptors: [tableView sortDescriptors]];
+	} else if (tableView == self.taxoTableView) {
+		[taxoArray sortUsingDescriptors:[tableView sortDescriptors]];
+	}
 	[tableView reloadData];
+}
+
+- (IBAction)taxophoneLoadPressed:(id)sender
+{
+	// Запрашиваем файл, внешний по отношению к проекту, в котором хранятся данные ФИАС в CSVформате
+	NSOpenPanel *openPanel = [NSOpenPanel openPanel];
+	openPanel.canChooseDirectories = NO;
+	openPanel.canChooseFiles = YES;
+	
+	[openPanel beginSheetModalForWindow:self.window completionHandler:^(NSInteger result) {
+		if (result == NSFileHandlingPanelOKButton) {
+			if (openPanel.URL) {
+				[[NSNotificationCenter defaultCenter] postNotificationName:VVVInternalAddresLoad object:openPanel.URL];
+			}
+		}
+	}];
+	
+
+}
+
+- (void) processAddressLoading:(NSNotification *) note
+{
+	NSURL *urlToLoad = [note object];
+	
+	// файл выбран!
+	// 1) Удаляем все данные из ФИАС
+	NSFetchRequest *req = [[NSFetchRequest alloc] initWithEntityName:@"Taxophon"];
+	NSError *error = nil;
+	NSArray *res = [self.managedObjectContext executeFetchRequest:req error:&error];
+	if (!error) {
+		for (Taxophon *f in res) {
+			[self.managedObjectContext deleteObject:f];
+		}
+	} else {
+		NSAlert *alert = [NSAlert alertWithError:error];
+		[alert runModal];
+	}
+	// 2. Начинаем обработку входного массива из файла в csv формате
+	
+	
+	NSString* fileContents =
+	[NSString stringWithContentsOfURL:urlToLoad encoding:NSUTF8StringEncoding error:&error];
+	if (error) {
+		NSLog(@"Ошибка при чтении файла - %@",[error localizedDescription]);
+		exit(1);
+	}
+	
+	// first, separate by new line
+	@autoreleasepool {
+		allLinedStrings =
+		[fileContents componentsSeparatedByCharactersInSet:
+		 [NSCharacterSet characterSetWithCharactersInString:@"\n"]];
+		lineIndex = 0;
+		NSInteger totalRecords = 0;
+		for (NSString *line in allLinedStrings) {
+			
+			NSArray *decomposed = [line componentsSeparatedByString:@","];
+			if (decomposed.count == 3) {
+				BOOL check = ! [decomposed[0] isEqualToString:@"\"subj_name\""];
+				if (check ) {
+					Taxophon *newTax = [Taxophon getOrCreateRecordForData:decomposed inMoc:self.managedObjectContext];
+					if (newTax) {
+						lineIndex++;
+						if (lineIndex >= 500) {
+							[self.managedObjectContext save:&error];
+							totalRecords += lineIndex;
+							lineIndex = 0;
+							NSLog(@"Загружено - %lu записей", totalRecords);
+							
+						}
+					}
+				}
+			}
+		}
+		allLinedStrings = nil;
+		[self.managedObjectContext save:&error];
+	}
+	[taxoArray removeAllObjects];
+	[taxoArray addObjectsFromArray:[[DAO sharedInstance] fiasListWithPredicate:nil]];
+	self.taxophoneRecordsAmount.stringValue = [NSString stringWithFormat:@"Всего записей: %lu",taxoArray.count];
+	[self.taxoTableView reloadData];
+}
+
+
+
+- (IBAction)linkFIASPressed:(id)sender
+{
+	
 }
 
 @end

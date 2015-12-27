@@ -8,6 +8,7 @@
         <relationship name="okrug" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Okrug" inverseName="fiasRecords" inverseEntity="Okrug" syncable="YES"/>
         <relationship name="poselenie" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Poselenie" inverseName="fiasRecords" inverseEntity="Poselenie" syncable="YES"/>
         <relationship name="region" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Region" inverseName="fiasRecords" inverseEntity="Region" syncable="YES"/>
+        <relationship name="taxophones" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Taxophon" inverseName="fias" inverseEntity="Taxophon" syncable="YES"/>
     </entity>
     <entity name="Okrug" representedClassName="Okrug" syncable="YES">
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
@@ -27,10 +28,20 @@
         <relationship name="okrug" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Okrug" inverseName="regions" inverseEntity="Okrug" syncable="YES"/>
         <relationship name="poselenies" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Poselenie" inverseName="region" inverseEntity="Poselenie" syncable="YES"/>
     </entity>
+    <entity name="Taxophon" representedClassName="Taxophon" syncable="YES">
+        <attribute name="addressLine" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="formattedAddress" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="latitude" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="longitude" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="phoneNumber" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="subjLine" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="fias" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Fias" inverseName="taxophones" inverseEntity="Fias" syncable="YES"/>
+    </entity>
     <elements>
-        <element name="Fias" positionX="-65" positionY="-45" width="128" height="148"/>
-        <element name="Okrug" positionX="-263" positionY="-63" width="128" height="103"/>
-        <element name="Region" positionX="-477" positionY="84" width="128" height="103"/>
-        <element name="Poselenie" positionX="-452" positionY="-153" width="128" height="103"/>
+        <element name="Fias" positionX="-65" positionY="-45" width="128" height="163"/>
+        <element name="Okrug" positionX="-335" positionY="-63" width="128" height="103"/>
+        <element name="Region" positionX="-533" positionY="32" width="128" height="103"/>
+        <element name="Poselenie" positionX="-522" positionY="-153" width="128" height="103"/>
+        <element name="Taxophon" positionX="-353" positionY="111" width="128" height="148"/>
     </elements>
 </model>

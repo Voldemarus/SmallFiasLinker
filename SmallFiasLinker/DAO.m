@@ -94,7 +94,7 @@ NSString * const VVVParserDuplicatedFiasID	=	@"VVVParserDuplicatedFiasID";
 	
 }
 
-- (NSArray *)fiasListWithPredicate:(nullable NSPredicate *)predicate
+- (NSArray *)fiasListWithPredicate:(NSPredicate *)predicate
 {
 	NSFetchRequest *req = [[NSFetchRequest alloc] initWithEntityName:[[Fias class] description]];
 	req.predicate = predicate;
@@ -105,6 +105,43 @@ NSString * const VVVParserDuplicatedFiasID	=	@"VVVParserDuplicatedFiasID";
 		return @[];
 	}
 	return result;
+}
+
+#pragma mark -
+
+- (CGFloat) badPercent
+{
+	NSFetchRequest *req = [[NSFetchRequest alloc] initWithEntityName:[[Taxophon class] description]];
+	req.predicate = nil;
+	NSInteger total = [self.managedObjectContext countForFetchRequest:req error:nil];
+	if (total > 0) {
+		req.predicate = [NSPredicate predicateWithFormat:@"fias != NULL"];
+		NSError *error = nil;
+		NSInteger empty = [self.managedObjectContext countForFetchRequest:req error:&error];
+		if (error) {
+			[[NSNotificationCenter defaultCenter] postNotificationName:VVVCoreDataRequestError object:error];
+			NSLog(@"req = %@ error = %@", req, [error localizedDescription]);
+			return 100.0;
+		}
+		CGFloat result = empty * 100.0 / total;
+		return result;
+		
+	}
+	return 100.0;
+}
+
+- (NSArray *)taxophoneListWithPredicate:(NSPredicate *)predicate
+{
+	NSFetchRequest *req = [[NSFetchRequest alloc] initWithEntityName:[[Taxophon class] description]];
+	req.predicate = predicate;
+	NSError *error = nil;
+	NSArray *result = [self.managedObjectContext executeFetchRequest:req error:&error];
+	if (!result && error) {
+		[[NSNotificationCenter defaultCenter] postNotificationName:VVVCoreDataRequestError object:error];
+		return @[];
+	}
+	return result;
+	
 }
 
 @end

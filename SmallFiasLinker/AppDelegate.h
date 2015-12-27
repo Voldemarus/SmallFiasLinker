@@ -14,6 +14,13 @@
 @property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
 @property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 
+
+@property (weak) IBOutlet NSTableView *taxoTableView;
+- (IBAction)taxophoneLoadPressed:(id)sender;
+@property (weak) IBOutlet NSTextField *taxophoneRecordsAmount;
+- (IBAction)linkFIASPressed:(id)sender;
+
+
 @property (weak) IBOutlet NSTableView *fiasTableView;
 - (IBAction)fiasUploadPressed:(id)sender;
 - (IBAction)filerSetupPressed:(id)sender;
@@ -22,6 +29,7 @@
 - (IBAction)filterIsOnChanged:(id)sender;
 @property (weak) IBOutlet NSTextField *fiasRecordCount;
 
+@property (weak) IBOutlet NSTextField *unlinkedCount;
 
 
 @end

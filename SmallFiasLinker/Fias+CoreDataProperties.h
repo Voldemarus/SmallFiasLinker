@@ -13,7 +13,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class Okrug, Region, Poselenie;
+@class Okrug, Region, Poselenie, Taxophon;
 
 @interface Fias (CoreDataProperties)
 
@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) Okrug *okrug;
 @property (nullable, nonatomic, retain) Region *region;
 @property (nullable, nonatomic, retain) Poselenie *poselenie;
+@property (nullable, nonatomic, retain) NSSet<NSManagedObject *> *taxophones;
 
 @end
 
