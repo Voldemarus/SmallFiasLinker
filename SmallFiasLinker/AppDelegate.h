@@ -31,6 +31,7 @@
 
 @property (weak) IBOutlet NSTextField *unlinkedCount;
 
+- (IBAction)removeFIASpressed:(id)sender;
 
 @end
 

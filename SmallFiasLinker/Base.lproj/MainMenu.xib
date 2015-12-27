@@ -999,16 +999,6 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </tableHeaderView>
                                         </scrollView>
-                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3qd-JZ-hPF">
-                                            <rect key="frame" x="11" y="-1" width="232" height="32"/>
-                                            <buttonCell key="cell" type="push" title="Загрузить CSV" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="toe-lG-b1t">
-                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
-                                            </buttonCell>
-                                            <connections>
-                                                <action selector="taxophoneLoadPressed:" target="Voe-Tx-rLC" id="8Dx-Ua-yH5"/>
-                                            </connections>
-                                        </button>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4Gl-cm-Ash">
                                             <rect key="frame" x="782" y="10" width="218" height="17"/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Всего записей: 0" id="rGX-oj-KlO">
@@ -1018,13 +1008,23 @@
                                             </textFieldCell>
                                         </textField>
                                         <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9Jn-DZ-zA0">
-                                            <rect key="frame" x="273" y="-1" width="280" height="32"/>
+                                            <rect key="frame" x="164" y="0.0" width="148" height="32"/>
                                             <buttonCell key="cell" type="push" title="Привязать ФИАС" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="adG-mb-myA">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
                                                 <action selector="linkFIASPressed:" target="Voe-Tx-rLC" id="hDP-xM-eiM"/>
+                                            </connections>
+                                        </button>
+                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zqE-tP-KHH">
+                                            <rect key="frame" x="317" y="-1" width="148" height="32"/>
+                                            <buttonCell key="cell" type="push" title="Стереть привязку" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pOY-lP-XkN">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="removeFIASpressed:" target="Voe-Tx-rLC" id="k6n-Ti-92q"/>
                                             </connections>
                                         </button>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CYs-yV-X1B">
@@ -1035,6 +1035,16 @@
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
+                                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3qd-JZ-hPF">
+                                            <rect key="frame" x="11" y="1" width="145" height="32"/>
+                                            <buttonCell key="cell" type="push" title="Загрузить CSV" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="toe-lG-b1t">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="taxophoneLoadPressed:" target="Voe-Tx-rLC" id="8Dx-Ua-yH5"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                 </view>
                             </tabViewItem>

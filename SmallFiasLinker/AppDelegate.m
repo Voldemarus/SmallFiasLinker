@@ -46,7 +46,7 @@ NSString * const VVVInternalAddresLoad		=	@"Pip1";
 	self.taxophoneRecordsAmount.stringValue = [NSString stringWithFormat:@"Всего записей: %lu",taxoArray.count];
 
 	float badPercent = [DAO sharedInstance].badPercent;
-	self.unlinkedCount.stringValue = [NSString stringWithFormat:@"Не связано: %.2f%%",badPercent];
+	self.unlinkedCount.stringValue = [NSString stringWithFormat:@"Привязано: %.0f объектов",badPercent];
 
 	for (NSTableColumn *tableColumn in self.taxoTableView.tableColumns ) {
 		NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:tableColumn.identifier ascending:YES selector:@selector(compare:)];
@@ -469,7 +469,139 @@ NSString * const VVVInternalAddresLoad		=	@"Pip1";
 
 - (IBAction)linkFIASPressed:(id)sender
 {
-	
+	NSArray *stopWords = @[ @"р-н", @"п.", @"с.", @"СТС", @"ул.", @"LIN", @"ст."];
+	NSPredicate *pred = [NSPredicate predicateWithFormat:@"fias = NULL"];
+	NSArray *notConnectedd = [[DAO sharedInstance] taxophoneListWithPredicate:pred];
+	NSLog(@"Найдено записей для обработки - %lu",notConnectedd.count);
+	NSInteger foundCount = 0;
+	NSInteger stepCount = 0;
+	NSString *previousOkrugName = @"";
+	NSArray *okrugList = @[];
+	for (Taxophon *taxo in notConnectedd) {
+		stepCount++;
+//		NSLog(@"Taxo = %@", taxo);
+		if (!taxo.fias) {
+			// ковыряемся только с непривязанными адресами
+			// 1) Выбираем записи для которых есть полное совпадение по названию края/округа
+			//    Разумеется без учета регистра
+			
+			if ([taxo.subjLine isEqualToString:previousOkrugName] == NO) {
+				okrugList = nil;
+				NSPredicate *pred = [NSPredicate predicateWithFormat:@"okrug.name like [cd] %@", taxo.subjLine];
+				okrugList = [[DAO sharedInstance] fiasListWithPredicate:pred];
+				previousOkrugName = taxo.subjLine;
+			}
+//			NSLog(@"subjLine = %@ -> okrugList = %@", taxo.subjLine, okrugList);
+			if (okrugList.count > 0) {
+				// Ищем в данном округе
+				NSArray *components = [taxo.addressLine componentsSeparatedByString:@" "];
+				NSMutableArray *measure = [[NSMutableArray alloc] initWithCapacity:components.count];
+				// Отстреливаем стоп-слова и ненужные компоненты
+				for (NSString *word in components) {
+					if ([word integerValue] == 0) {
+						BOOL fundStop = NO;
+						for ( NSString *stopWord in stopWords) {
+							if ([word isEqualToString:stopWord]) {
+								fundStop = YES;
+								break;
+							}
+						}
+						if (!fundStop) {
+							[measure addObject:[word uppercaseString]];
+						}
+					}
+				}
+				// 2)	Используем полученный набор как список слов, которые должны встречаться
+				//		в названиях классификатора
+				for (Fias *fiasRecord in okrugList) {
+					NSString *fiasRegion = [fiasRecord.region.name uppercaseString];
+					fiasRegion = [fiasRegion stringByReplacingOccurrencesOfString:@" РАЙОН" withString:@""];
+					fiasRegion = [fiasRegion stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+					BOOL regionFound = NO;
+					BOOL poselokFound = NO;
+					BOOL seloFound = NO;
+					if (fiasRegion && fiasRegion.length > 3) {
+						// ищем название района в списке признаков
+						for (NSString *mw in measure) {
+							if ([mw isEqualToString:fiasRegion]) {
+								regionFound = YES;
+//								NSLog(@"Найден район - %@", fiasRegion);
+								break;
+							}
+						}
+					} else {
+						regionFound = YES;		// регион не задан, считаем что совпало
+					}
+					if (regionFound) {
+						NSString *fiasPoselok = [fiasRecord.poselenie.name uppercaseString];
+						fiasPoselok = [fiasPoselok stringByReplacingOccurrencesOfString:@"СЕЛЬСКОЕ ПОСЕЛЕНИЕ "withString:@""];
+						fiasPoselok = [fiasPoselok stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+						if (fiasPoselok && fiasPoselok.length > 3) {
+							// теперь ищем название поселения
+							for (NSString *mw in measure) {
+								if ([mw isEqualToString:fiasPoselok]) {
+									poselokFound = YES;
+									NSLog(@"найден поселок - %@",fiasPoselok);
+									break;
+								}
+							}
+						} else {
+							poselokFound = YES;
+						}
+					}
+					if (poselokFound) {
+						NSString *fiasSelo = [fiasRecord.nasPunkt uppercaseString];
+						fiasSelo = [fiasSelo stringByReplacingOccurrencesOfString:@" СЕЛО" withString:@""];
+						fiasSelo = [fiasSelo stringByReplacingOccurrencesOfString:@"СЕЛО " withString:@""];
+						fiasSelo = [fiasSelo stringByReplacingOccurrencesOfString:@"ДЕРЕВНЯ " withString:@""];
+						fiasSelo = [fiasSelo stringByReplacingOccurrencesOfString:@" ДЕРЕВНЯ" withString:@""];
+						fiasSelo = [fiasSelo stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+						if (fiasSelo && fiasSelo.length > 1) {
+							// теперь ищем название деревни, может быть из двух букв - Ая
+							for (NSString *mw in measure) {
+								NSString *mwt = [mw stringByReplacingOccurrencesOfString:@"Д." withString:@""];
+								if ([mwt isEqualToString:fiasSelo]) {
+									seloFound = YES;
+									NSLog(@"Найдено село - %@", fiasSelo);
+									
+									break;
+								}
+							}
+						} else {
+							seloFound = YES;
+						}
+
+					}
+					//
+					// Принимаем решение - если все три параметра совпали (или те, что
+					// доступны для сравнения, устанавливаем привязку
+					//
+//					NSLog(@"address line - %@",taxo.addressLine);
+					BOOL fiasFound = regionFound && poselokFound && seloFound;
+					// и собственно привязка
+					if (fiasFound) {
+						taxo.fias = fiasRecord;
+						[self.managedObjectContext save:nil];
+						[self.managedObjectContext refreshObject:taxo mergeChanges:NO];
+						foundCount++;
+						NSLog(@"Привязан! - %lu/%lu ==> %.3f%%", foundCount, stepCount, 100.0*foundCount/stepCount);
+						NSLog(@"fias - %@ %@ %@ %@", fiasRecord.okrug.name, fiasRecord.region.name, fiasRecord.poselenie.name, fiasRecord.nasPunkt);
+						break;
+					}
+				}
+			}
+			
+		}
+	}
+	[self.taxoTableView reloadData];
 }
 
+- (IBAction)removeFIASpressed:(id)sender
+{
+	for (Taxophon *t in taxoArray) {
+		t.fias = nil;
+	}
+	[self.managedObjectContext save:nil];
+	[self.taxoTableView reloadData];
+}
 @end

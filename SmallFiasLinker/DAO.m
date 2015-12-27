@@ -123,7 +123,7 @@ NSString * const VVVParserDuplicatedFiasID	=	@"VVVParserDuplicatedFiasID";
 			NSLog(@"req = %@ error = %@", req, [error localizedDescription]);
 			return 100.0;
 		}
-		CGFloat result = empty * 100.0 / total;
+		CGFloat result = empty ;
 		return result;
 		
 	}
