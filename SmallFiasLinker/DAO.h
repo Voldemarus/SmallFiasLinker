@@ -44,6 +44,7 @@ extern NSString * const VVVParserDuplicatedFiasID;
 
 - (CGFloat) badPercent;
 - (NSArray *)taxophoneListWithPredicate:(NSPredicate *)predicate;
+- (NSArray *)sortedTaxophoneListWithPredicate:(NSPredicate *)predicate;
 
 
 @end

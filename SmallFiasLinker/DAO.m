@@ -144,4 +144,20 @@ NSString * const VVVParserDuplicatedFiasID	=	@"VVVParserDuplicatedFiasID";
 	
 }
 
+- (NSArray *)sortedTaxophoneListWithPredicate:(NSPredicate *)predicate
+{
+	NSFetchRequest *req = [[NSFetchRequest alloc] initWithEntityName:[[Taxophon class] description]];
+	req.predicate = predicate;
+	req.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"subjLine" ascending:YES]];
+	NSError *error = nil;
+	NSArray *result = [self.managedObjectContext executeFetchRequest:req error:&error];
+	if (!result && error) {
+		[[NSNotificationCenter defaultCenter] postNotificationName:VVVCoreDataRequestError object:error];
+		return @[];
+	}
+	return result;
+	
+
+}
+
 @end

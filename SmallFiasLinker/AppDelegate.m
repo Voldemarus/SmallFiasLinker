@@ -469,25 +469,49 @@ NSString * const VVVInternalAddresLoad		=	@"Pip1";
 
 - (IBAction)linkFIASPressed:(id)sender
 {
-	NSArray *stopWords = @[ @"р-н", @"п.", @"с.", @"СТС", @"ул.", @"LIN", @"ст."];
+	NSArray *stopWords = @[ @"р-н", @"п.", @"с.", @"СТС", @"ул.", @"LIN", @"ст.",
+							@"городской", @"округ", @"г."];
 	NSPredicate *pred = [NSPredicate predicateWithFormat:@"fias = NULL"];
-	NSArray *notConnectedd = [[DAO sharedInstance] taxophoneListWithPredicate:pred];
+	NSArray *notConnectedd = [[DAO sharedInstance] sortedTaxophoneListWithPredicate:pred];
 	NSLog(@"Найдено записей для обработки - %lu",notConnectedd.count);
 	NSInteger foundCount = 0;
 	NSInteger stepCount = 0;
 	NSString *previousOkrugName = @"";
 	NSArray *okrugList = @[];
-	for (Taxophon *taxo in notConnectedd) {
+	NSInteger notConnectedCount = notConnectedd.count;
+	BOOL cityMode = NO;
+	for (NSInteger currentIndex = 0; currentIndex < notConnectedCount; currentIndex++) {
+		// для гарантии правильной последовательности перебора, упорядоченной по
+		// округам
+		Taxophon *taxo = notConnectedd[currentIndex];
 		stepCount++;
-//		NSLog(@"Taxo = %@", taxo);
+//		NSLog(@"Taxo = %@", taxo.addressLine);
 		if (!taxo.fias) {
 			// ковыряемся только с непривязанными адресами
 			// 1) Выбираем записи для которых есть полное совпадение по названию края/округа
 			//    Разумеется без учета регистра
 			
 			if ([taxo.subjLine isEqualToString:previousOkrugName] == NO) {
+				for (Fias *f in okrugList) {
+					[self.managedObjectContext refreshObject:f mergeChanges:NO];
+				}
 				okrugList = nil;
 				NSPredicate *pred = [NSPredicate predicateWithFormat:@"okrug.name like [cd] %@", taxo.subjLine];
+				//
+				// С городами все непросто
+				//
+				cityMode = NO;
+				NSString *addrLineUp = [taxo.addressLine uppercaseString];
+				if ([addrLineUp containsString:@"БАРНАУЛ"]) {
+					NSLog(@"###");
+				}
+				
+				if ([addrLineUp containsString:@"ГОРОДСКОЙ ОКРУГ"]) {
+					pred = [NSPredicate predicateWithFormat:@"okrug.name like [cd] %@ AND region.name like [cd] %@", taxo.subjLine, @"* ГОРОД"];
+					cityMode = YES;
+				}
+				
+				
 				okrugList = [[DAO sharedInstance] fiasListWithPredicate:pred];
 				previousOkrugName = taxo.subjLine;
 			}
@@ -515,17 +539,26 @@ NSString * const VVVInternalAddresLoad		=	@"Pip1";
 				//		в названиях классификатора
 				for (Fias *fiasRecord in okrugList) {
 					NSString *fiasRegion = [fiasRecord.region.name uppercaseString];
-					fiasRegion = [fiasRegion stringByReplacingOccurrencesOfString:@" РАЙОН" withString:@""];
+					if (cityMode) {
+						// с пробелом, чтобы не прибить СТАРГОРОД
+						fiasRegion = [fiasRegion stringByReplacingOccurrencesOfString:@" ГОРОД" withString:@""];
+						fiasRegion = [fiasRegion stringByReplacingOccurrencesOfString:@"ГОРОД " withString:@""];
+					} else {
+						fiasRegion = [fiasRegion stringByReplacingOccurrencesOfString:@" РАЙОН" withString:@""];
+					}
 					fiasRegion = [fiasRegion stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+
 					BOOL regionFound = NO;
-					BOOL poselokFound = NO;
+//					BOOL poselokFound = NO;
 					BOOL seloFound = NO;
 					if (fiasRegion && fiasRegion.length > 3) {
 						// ищем название района в списке признаков
 						for (NSString *mw in measure) {
 							if ([mw isEqualToString:fiasRegion]) {
 								regionFound = YES;
-//								NSLog(@"Найден район - %@", fiasRegion);
+								if (cityMode) {
+									NSLog(@"Найден город - %@", fiasRegion);
+								}
 								break;
 							}
 						}
@@ -533,29 +566,33 @@ NSString * const VVVInternalAddresLoad		=	@"Pip1";
 						regionFound = YES;		// регион не задан, считаем что совпало
 					}
 					if (regionFound) {
-						NSString *fiasPoselok = [fiasRecord.poselenie.name uppercaseString];
-						fiasPoselok = [fiasPoselok stringByReplacingOccurrencesOfString:@"СЕЛЬСКОЕ ПОСЕЛЕНИЕ "withString:@""];
-						fiasPoselok = [fiasPoselok stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-						if (fiasPoselok && fiasPoselok.length > 3) {
-							// теперь ищем название поселения
-							for (NSString *mw in measure) {
-								if ([mw isEqualToString:fiasPoselok]) {
-									poselokFound = YES;
-									NSLog(@"найден поселок - %@",fiasPoselok);
-									break;
-								}
-							}
-						} else {
-							poselokFound = YES;
-						}
-					}
-					if (poselokFound) {
+//						NSString *fiasPoselok = [fiasRecord.poselenie.name uppercaseString];
+//						fiasPoselok = [fiasPoselok stringByReplacingOccurrencesOfString:@"СЕЛЬСКОЕ ПОСЕЛЕНИЕ "withString:@""];
+//						fiasPoselok = [fiasPoselok stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+//						if (fiasPoselok && fiasPoselok.length > 3) {
+//							// теперь ищем название поселения
+//							for (NSString *mw in measure) {
+//								if ([mw isEqualToString:fiasPoselok]) {
+//									poselokFound = YES;
+//									NSLog(@"найден поселок - %@",fiasPoselok);
+//									break;
+//								}
+//							}
+//						} else {
+//							poselokFound = YES;
+//						}
+//					}
+//					if (poselokFound) {
 						NSString *fiasSelo = [fiasRecord.nasPunkt uppercaseString];
-						fiasSelo = [fiasSelo stringByReplacingOccurrencesOfString:@" СЕЛО" withString:@""];
-						fiasSelo = [fiasSelo stringByReplacingOccurrencesOfString:@"СЕЛО " withString:@""];
-						fiasSelo = [fiasSelo stringByReplacingOccurrencesOfString:@"ДЕРЕВНЯ " withString:@""];
-						fiasSelo = [fiasSelo stringByReplacingOccurrencesOfString:@" ДЕРЕВНЯ" withString:@""];
-						fiasSelo = [fiasSelo stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+						if (cityMode) {
+							fiasSelo = [fiasSelo stringByReplacingOccurrencesOfString:@" ГОРОД" withString:@""];
+						} else {
+							fiasSelo = [fiasSelo stringByReplacingOccurrencesOfString:@" СЕЛО" withString:@""];
+							fiasSelo = [fiasSelo stringByReplacingOccurrencesOfString:@"СЕЛО " withString:@""];
+							fiasSelo = [fiasSelo stringByReplacingOccurrencesOfString:@"ДЕРЕВНЯ " withString:@""];
+							fiasSelo = [fiasSelo stringByReplacingOccurrencesOfString:@" ДЕРЕВНЯ" withString:@""];
+							fiasSelo = [fiasSelo stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+						}
 						if (fiasSelo && fiasSelo.length > 1) {
 							// теперь ищем название деревни, может быть из двух букв - Ая
 							for (NSString *mw in measure) {
@@ -570,19 +607,17 @@ NSString * const VVVInternalAddresLoad		=	@"Pip1";
 						} else {
 							seloFound = YES;
 						}
-
 					}
 					//
 					// Принимаем решение - если все три параметра совпали (или те, что
 					// доступны для сравнения, устанавливаем привязку
 					//
 //					NSLog(@"address line - %@",taxo.addressLine);
-					BOOL fiasFound = regionFound && poselokFound && seloFound;
+					BOOL fiasFound = regionFound  && seloFound;
 					// и собственно привязка
 					if (fiasFound) {
 						taxo.fias = fiasRecord;
 						[self.managedObjectContext save:nil];
-						[self.managedObjectContext refreshObject:taxo mergeChanges:NO];
 						foundCount++;
 						NSLog(@"Привязан! - %lu/%lu ==> %.3f%%", foundCount, stepCount, 100.0*foundCount/stepCount);
 						NSLog(@"fias - %@ %@ %@ %@", fiasRecord.okrug.name, fiasRecord.region.name, fiasRecord.poselenie.name, fiasRecord.nasPunkt);
@@ -592,8 +627,10 @@ NSString * const VVVInternalAddresLoad		=	@"Pip1";
 			}
 			
 		}
+		[self.managedObjectContext refreshObject:taxo mergeChanges:NO];
 	}
 	[self.taxoTableView reloadData];
+	NSLog(@"Проход закончен!");
 }
 
 - (IBAction)removeFIASpressed:(id)sender
